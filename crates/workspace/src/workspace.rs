@@ -4442,7 +4442,8 @@ fn parse_pixel_size_env_var(value: &str) -> Option<Size<GlobalPixels>> {
 }
 
 pub fn titlebar_height(cx: &mut WindowContext) -> Pixels {
-    (1.75 * cx.rem_size()).max(px(32.))
+    // (1.75 * cx.rem_size()).max(px(32.))
+    px(0.)
 }
 
 struct DisconnectedOverlay;

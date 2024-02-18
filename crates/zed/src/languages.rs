@@ -68,7 +68,6 @@ pub fn init(
     languages.register_native_grammars([
         ("astro", tree_sitter_astro::language()),
         ("bash", tree_sitter_bash::language()),
-        ("beancount", tree_sitter_beancount::language()),
         ("c", tree_sitter_c::language()),
         ("c_sharp", tree_sitter_c_sharp::language()),
         ("clojure", tree_sitter_clojure::language()),
@@ -140,7 +139,6 @@ pub fn init(
         ],
     );
     language("bash", vec![]);
-    language("beancount", vec![]);
     language("c", vec![Arc::new(c::CLspAdapter) as Arc<dyn LspAdapter>]);
     language("clojure", vec![Arc::new(clojure::ClojureLspAdapter)]);
     language("cpp", vec![Arc::new(c::CLspAdapter)]);
@@ -337,13 +335,17 @@ pub async fn language(
 }
 
 fn load_config(name: &str) -> LanguageConfig {
-    ::toml::from_slice(
-        &LanguageDir::get(&format!("{}/config.toml", name))
+    let config_toml = String::from_utf8(
+        LanguageDir::get(&format!("{}/config.toml", name))
             .unwrap()
-            .data,
+            .data
+            .to_vec(),
     )
-    .with_context(|| format!("failed to load config.toml for language {name:?}"))
-    .unwrap()
+    .unwrap();
+
+    ::toml::from_str(&config_toml)
+        .with_context(|| format!("failed to load config.toml for language {name:?}"))
+        .unwrap()
 }
 
 fn load_queries(name: &str) -> LanguageQueries {
